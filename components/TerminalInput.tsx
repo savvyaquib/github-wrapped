@@ -33,8 +33,19 @@ export default function TerminalInput() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
-      // Navigate to the wrapped page with the provided input
-      router.push(`/wrapped/${encodeURIComponent(input.trim())}`);
+      let username = input.trim();
+      
+      // Extract username if they pasted a full github url (e.g. https://github.com/username)
+      if (username.includes('github.com/')) {
+        username = username.split('github.com/')[1].split('/')[0];
+      }
+      
+      // Remove any @ symbol if they typed @username
+      if (username.startsWith('@')) {
+        username = username.substring(1);
+      }
+
+      router.push(`/wrapped/${encodeURIComponent(username)}`);
     }
   };
 
