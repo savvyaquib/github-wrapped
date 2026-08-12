@@ -201,5 +201,6 @@ export async function getGitHubWrappedData(username: string): Promise<Omit<IWrap
     totalStars,
     mostStarredRepo,
     accountAgeInYears,
+    avatarUrl: userProfile.avatar_url,
   };
 }

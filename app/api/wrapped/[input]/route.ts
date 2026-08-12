@@ -54,9 +54,12 @@ export async function GET(
       username: new RegExp(`^${username}$`, 'i') 
     });
 
-    if (cachedData) {
+    if (cachedData && cachedData.avatarUrl) {
       // Cache HIT!
       return NextResponse.json({ data: cachedData, source: 'cache' });
+    } else if (cachedData && !cachedData.avatarUrl) {
+      // Delete incomplete cache to fetch fresh data with avatarUrl
+      await WrappedModel.deleteOne({ _id: cachedData._id });
     }
 
     // 2. Cache MISS - Fetch from GitHub

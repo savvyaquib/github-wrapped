@@ -164,7 +164,7 @@ export default function ShareCard({ data }: { data: Omit<IWrapped, 'createdAt'> 
               <div className="flex flex-col items-center mb-10 transition-transform duration-200" style={{ transform: `translateX(${rotate.y * -0.5}px) translateY(${rotate.x * 0.5}px)` }}>
                 <div className="w-24 h-24 rounded-full p-[2px] bg-gradient-to-tr from-green-400 via-emerald-500 to-purple-600 mb-5 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
                   <img 
-                    src={`https://github.com/${data.username}.png`} 
+                    src={data.avatarUrl || `https://github.com/${data.username}.png`} 
                     alt={data.username}
                     crossOrigin="anonymous" // Crucial for html-to-image canvas rendering
                     className="w-full h-full rounded-full object-cover border-4 border-[#09090b]"
