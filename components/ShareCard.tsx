@@ -275,6 +275,16 @@ export default function ShareCard({
                   value={data.totalStars.toLocaleString()}
                   jetbrains={jetbrains.className}
                 />
+                <StatCard
+                  label="Total Repos"
+                  value={(data.totalRepos || 0).toLocaleString()}
+                  jetbrains={jetbrains.className}
+                />
+                <StatCard
+                  label="Account Age"
+                  value={`${data.accountAgeInYears} year${data.accountAgeInYears === 1 ? '' : 's'}`}
+                  jetbrains={jetbrains.className}
+                />
               </div>
 
               <div

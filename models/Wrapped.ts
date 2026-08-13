@@ -17,6 +17,7 @@ export interface IWrapped {
   totalStars: number;
   mostStarredRepo: string | null;
   accountAgeInYears: number;
+  totalRepos: number;
   avatarUrl?: string;
   createdAt?: Date; // Handled by Mongoose timestamps
 }
@@ -36,6 +37,7 @@ const WrappedSchema = new mongoose.Schema<IWrapped>(
     totalStars: { type: Number, required: true },
     mostStarredRepo: { type: String, default: null },
     accountAgeInYears: { type: Number, required: true },
+    totalRepos: { type: Number, default: 0 },
     avatarUrl: { type: String },
   },
   {
