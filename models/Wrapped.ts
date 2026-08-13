@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
  * Model representing a user's GitHub Wrapped recap data.
  * 
  * We cache this data so we don't bombard the GitHub API on every page reload
- * or share. A 24-hour TTL (Time To Live) is used so the data remains fresh
+ * or share. A 1-week TTL (Time To Live) is used so the data remains fresh
  * but doesn't require constant re-fetching.
  */
 
@@ -44,10 +44,10 @@ const WrappedSchema = new mongoose.Schema<IWrapped>(
 );
 
 // This creates a TTL index. MongoDB will automatically delete documents 
-// 24 hours (86400 seconds) after their `createdAt` date.
+// 1 week (604800 seconds) after their `createdAt` date.
 // If the document is requested after deletion, it counts as a cache miss,
 // and the app will re-fetch fresh data from GitHub.
-WrappedSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 });
+WrappedSchema.index({ createdAt: 1 }, { expireAfterSeconds: 604800 });
 
 // Ensure we don't overwrite the model if it's already compiled (common in hot-reloading)
 export default mongoose.models.Wrapped || mongoose.model<IWrapped>('Wrapped', WrappedSchema);
