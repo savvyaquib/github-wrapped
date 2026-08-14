@@ -194,7 +194,7 @@ export default function ShareCard({
 
             {/* Main Content */}
             <div
-              className="p-8 pb-10 flex flex-col items-center relative z-10"
+              className="p-6 pb-8 flex flex-col items-center relative z-10"
               style={{
                 transform: "translateZ(30px)",
                 transformStyle: "preserve-3d",
@@ -202,12 +202,12 @@ export default function ShareCard({
             >
               {/* User Profile */}
               <div
-                className="flex flex-col items-center mb-10 transition-transform duration-200"
+                className="flex flex-col items-center mb-6 transition-transform duration-200"
                 style={{
                   transform: `translateX(${rotate.y * -0.5}px) translateY(${rotate.x * 0.5}px)`,
                 }}
               >
-                <div className="w-24 h-24 rounded-full p-[2px] bg-gradient-to-tr from-green-400 via-emerald-500 to-purple-600 mb-5 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+                <div className="w-20 h-20 rounded-full p-[2px] bg-gradient-to-tr from-green-400 via-emerald-500 to-purple-600 mb-3 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
                   <img
                     src={
                       data.avatarUrl ||
@@ -218,10 +218,10 @@ export default function ShareCard({
                     className="w-full h-full rounded-full object-cover border-4 border-[#09090b]"
                   />
                 </div>
-                <h1 className="text-3xl font-bold text-white tracking-tight">
+                <h1 className="text-2xl font-bold text-white tracking-tight">
                   @{data.username}
                 </h1>
-                <div className="mt-3 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+                <div className="mt-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
                   <p
                     className={`text-emerald-400 text-[10px] tracking-widest font-semibold ${jetbrains.className}`}
                   >
@@ -232,24 +232,24 @@ export default function ShareCard({
 
               {/* Big Stat: Total Contributions */}
               <div
-                className="w-full bg-gradient-to-b from-white/[0.08] to-transparent border border-white/10 rounded-2xl p-8 mb-4 flex flex-col items-center relative overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] transition-transform duration-200"
+                className="w-full bg-gradient-to-b from-white/[0.08] to-transparent border border-white/10 rounded-2xl p-6 mb-4 flex flex-col items-center relative overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] transition-transform duration-200"
                 style={{
                   transform: `translateX(${rotate.y * -0.3}px) translateY(${rotate.x * 0.3}px)`,
                 }}
               >
                 <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-green-400/50 to-transparent"></div>
                 <span
-                  className={`text-white/60 text-[11px] tracking-[0.2em] uppercase mb-3 ${jetbrains.className}`}
+                  className={`text-white/60 text-[11px] tracking-[0.2em] uppercase mb-2 ${jetbrains.className}`}
                 >
                   Total Commits
                 </span>
-                <span className="text-7xl font-extrabold bg-gradient-to-b from-white via-green-100 to-green-500 text-transparent bg-clip-text drop-shadow-[0_2px_20px_rgba(16,185,129,0.4)]">
+                <span className="text-6xl font-extrabold bg-gradient-to-b from-white via-green-100 to-green-500 text-transparent bg-clip-text drop-shadow-[0_2px_20px_rgba(16,185,129,0.4)]">
                   {data.totalContributions.toLocaleString()}
                 </span>
               </div>
 
               {/* Grid Stats */}
-              <div className="grid grid-cols-2 gap-4 w-full">
+              <div className="grid grid-cols-2 gap-3 w-full">
                 <StatCard
                   label="Longest Streak"
                   value={`${data.longestStreak} days`}
@@ -263,6 +263,7 @@ export default function ShareCard({
                       ? `${data.topLanguages[0].percentage}%`
                       : undefined
                   }
+                  progress={data.topLanguages.length > 0 ? data.topLanguages[0].percentage : undefined}
                   jetbrains={jetbrains.className}
                 />
                 <StatCard
@@ -288,7 +289,7 @@ export default function ShareCard({
               </div>
 
               <div
-                className={`mt-12 text-[9px] text-white/30 tracking-[0.3em] uppercase ${jetbrains.className}`}
+                className={`mt-6 text-[9px] text-white/30 tracking-[0.3em] uppercase ${jetbrains.className}`}
               >
                 github-wrapped.vercel.app
               </div>
@@ -329,31 +330,43 @@ function StatCard({
   label,
   value,
   subValue,
+  progress,
   jetbrains,
 }: {
   label: string;
   value: string;
   subValue?: string;
+  progress?: number;
   jetbrains: string;
 }) {
   return (
-    <div className="bg-white/[0.03] border border-white/5 hover:border-white/10 hover:bg-white/[0.05] transition-colors rounded-[16px] p-5 flex flex-col justify-between relative overflow-hidden group">
+    <div className="bg-white/[0.03] border border-white/5 hover:border-white/10 hover:bg-white/[0.05] transition-colors rounded-[16px] p-4 flex flex-col justify-between relative overflow-hidden group">
       <div className="absolute inset-0 bg-gradient-to-br from-green-500/0 to-green-500/0 group-hover:to-green-500/5 transition-colors"></div>
       <span
-        className={`text-white/40 text-[9px] tracking-widest uppercase mb-4 ${jetbrains}`}
+        className={`text-white/40 text-[9px] tracking-widest uppercase mb-3 ${jetbrains}`}
       >
         {label}
       </span>
-      <div className="flex items-baseline space-x-2 relative z-10">
-        <span className="text-xl font-bold text-white tracking-tight">
-          {value}
-        </span>
-        {subValue && (
-          <span
-            className={`text-emerald-400 text-xs font-semibold ${jetbrains}`}
-          >
-            {subValue}
+      <div className="flex flex-col relative z-10">
+        <div className="flex items-baseline space-x-2">
+          <span className="text-xl font-bold text-white tracking-tight">
+            {value}
           </span>
+          {subValue && (
+            <span
+              className={`text-emerald-400 text-xs font-semibold ${jetbrains}`}
+            >
+              {subValue}
+            </span>
+          )}
+        </div>
+        {progress !== undefined && (
+          <div className="w-full bg-white/10 h-1.5 rounded-full mt-3 overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" 
+              style={{ width: `${progress}%` }} 
+            />
+          </div>
         )}
       </div>
     </div>
