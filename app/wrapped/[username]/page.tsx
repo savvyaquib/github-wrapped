@@ -50,9 +50,17 @@ export default function WrappedSequencePage() {
         </div>
         <button 
           onClick={() => router.push('/')}
-          className="font-sans flex items-center justify-center gap-2 text-sm font-medium text-background bg-text-primary hover:bg-white px-6 py-3 rounded-full transition-all hover:scale-105"
+          className="group relative inline-flex items-center justify-center p-[1px] font-sans text-sm font-medium tracking-wide text-white rounded-2xl transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(224,85,91,0.2)] mx-auto"
         >
-          Try another username
+          <span className="absolute inset-0 rounded-2xl bg-white/10 group-hover:bg-gradient-to-r group-hover:from-accent-delete group-hover:to-orange-500 transition-all duration-500"></span>
+          <span className="relative flex items-center justify-center gap-3 px-8 py-4 bg-background rounded-2xl w-full h-full border border-transparent">
+            <svg className="w-5 h-5 text-white/50 group-hover:text-accent-delete transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span className="text-white/70 group-hover:text-white transition-colors duration-300">
+              Try another username
+            </span>
+          </span>
         </button>
       </div>
     );
@@ -71,12 +79,17 @@ export default function WrappedSequencePage() {
           <div className="mt-12 text-center">
             <button 
               onClick={() => router.push('/')}
-              className="font-sans flex items-center justify-center gap-2 mx-auto text-sm font-medium text-text-muted hover:text-text-primary px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all hover:scale-105"
+              className="group relative inline-flex items-center justify-center p-[1px] font-sans text-sm font-medium tracking-wide text-white rounded-2xl transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(16,185,129,0.2)] mx-auto"
             >
-              <svg className="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Create another Wrapped
+              <span className="absolute inset-0 rounded-2xl bg-white/10 group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:via-emerald-500 group-hover:to-purple-600 transition-all duration-500"></span>
+              <span className="relative flex items-center justify-center gap-3 px-8 py-4 bg-background rounded-2xl w-full h-full border border-transparent">
+                <svg className="w-5 h-5 text-white/50 group-hover:text-green-400 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="text-white/70 group-hover:text-white transition-colors duration-300">
+                  Create another Wrapped
+                </span>
+              </span>
             </button>
           </div>
         </div>
