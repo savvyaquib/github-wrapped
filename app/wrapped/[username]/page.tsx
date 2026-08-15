@@ -30,10 +30,15 @@ export default function WrappedSequencePage() {
 
         setData(json.data);
         
-        // Wait a minimum of 4 seconds to let the loading animation play out
-        setTimeout(() => {
+        const hasSeenLoading = sessionStorage.getItem(`has_seen_loading_${usernameInput}`);
+        if (hasSeenLoading) {
           setPhase('share');
-        }, 4000);
+        } else {
+          sessionStorage.setItem(`has_seen_loading_${usernameInput}`, 'true');
+          setTimeout(() => {
+            setPhase('share');
+          }, 4000);
+        }
       } catch (err: any) {
         setError(err.message);
       }
