@@ -50,7 +50,7 @@ export default function WrappedSequencePage() {
         </div>
         <button 
           onClick={() => router.push('/')}
-          className="font-sans text-sm text-text-primary underline opacity-80 hover:opacity-100"
+          className="font-sans flex items-center justify-center gap-2 text-sm font-medium text-background bg-text-primary hover:bg-white px-6 py-3 rounded-full transition-all hover:scale-105"
         >
           Try another username
         </button>
@@ -71,8 +71,11 @@ export default function WrappedSequencePage() {
           <div className="mt-12 text-center">
             <button 
               onClick={() => router.push('/')}
-              className="font-sans text-sm text-text-muted underline hover:text-text-primary transition-colors"
+              className="font-sans flex items-center justify-center gap-2 mx-auto text-sm font-medium text-text-muted hover:text-text-primary px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all hover:scale-105"
             >
+              <svg className="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
               Create another Wrapped
             </button>
           </div>
