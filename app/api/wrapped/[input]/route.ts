@@ -6,7 +6,7 @@ import { getGitHubWrappedData } from '@/lib/github';
 /**
  * Extracts a GitHub username from either a raw username or a profile URL.
  * 
- * @param input Raw username string or URL (e.g. "mdaqu" or "https://github.com/mdaqu")
+ * @param input Raw username string or URL (e.g. "mdaquib" or "https://github.com/mdaquib")
  * @returns The extracted username
  */
 function extractUsername(input: string): string {
