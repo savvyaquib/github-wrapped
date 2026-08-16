@@ -243,7 +243,7 @@ export default function ShareCard({
                 >
                   Total Commits
                 </span>
-                <span className="text-6xl font-extrabold bg-gradient-to-b from-white via-green-100 to-green-500 text-transparent bg-clip-text drop-shadow-[0_2px_20px_rgba(16,185,129,0.4)]">
+                <span className="text-6xl font-extrabold text-white drop-shadow-[0_2px_20px_rgba(16,185,129,0.4)]">
                   {data.totalContributions.toLocaleString()}
                 </span>
               </div>
