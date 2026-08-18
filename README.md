@@ -10,7 +10,7 @@
 
 ---
 
-## ✨ Features
+## Features
 
 - **Deep GitHub Analytics**: Aggregates data across both GitHub REST and GraphQL APIs to calculate:
   - Total contributions over the last year
@@ -24,7 +24,7 @@
 - **Shareable Assets**: Integrated with `html-to-image` allowing users to generate and download a shareable snapshot of their GitHub Wrapped to post on social media.
 - **Story-Style Animations**: Immersive user experience powered by GSAP, mimicking the engaging flow of modern "wrapped" style applications.
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Framework**: [Next.js 14+](https://nextjs.org/) (App Router, Server Components)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
@@ -35,11 +35,11 @@
   - `html-to-image` for PNG generation
   - `lucide-react` for iconography
 
-## 🎨 Design Identity
+## Design Identity
 
 The visual identity of this project relies heavily on the **JetBrains Mono** typeface for all stats and numbers to evoke a code-native feel. The color palette focuses on diff-based accent colors (additions, deletions, modifications) combined with vibrant greens to match the iconic GitHub contribution graph.
 
-## 🚀 Setup & Local Development
+## Setup & Local Development
 
 ### 1. Prerequisites
 
@@ -76,7 +76,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 ├── app/                  # Next.js App Router pages and API routes
@@ -88,7 +88,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 └── public/               # Static assets
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request if you'd like to improve the animations, add new stats, or fix any bugs.
 
@@ -98,6 +98,6 @@ Contributions are welcome! Please feel free to submit a Pull Request if you'd li
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is open-source and available under the [MIT License](LICENSE).
