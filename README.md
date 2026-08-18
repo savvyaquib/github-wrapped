@@ -58,7 +58,7 @@ Ensure the following dependencies are installed before proceeding:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/github-wrapped.git
+   git clone https://github.com/savvyaquib/github-wrapped.git
    cd github-wrapped
    ```
 
