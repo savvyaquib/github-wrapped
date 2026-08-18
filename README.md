@@ -73,11 +73,11 @@ Create a `.env.local` file in the project root directory and define the required
 
 ```bash
 # MongoDB connection URI utilized for the caching layer
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/github-wrapped?retryWrites=true&w=majority
+MONGODB_URI=<paste your mongodb url here>
 
 # GitHub Personal Access Token (PAT) for API authentication
 # Requires 'public_repo' or general public read access
-GITHUB_TOKEN=ghp_your_personal_access_token
+GITHUB_TOKEN=<paste your github token here>
 ```
 
 ### Development Server
