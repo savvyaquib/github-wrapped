@@ -5,99 +5,113 @@
   <img src="https://img.shields.io/badge/GSAP-88CE02?style=for-the-badge&logo=greensock" alt="GSAP" />
   
   <h1>GitHub Wrapped</h1>
-  <p>A "Spotify Wrapped"-style recap tool for GitHub profiles. Paste a GitHub username or profile URL to fetch public GitHub activity, compute stats, and reveal them in an animated, story-style sequence.</p>
+  <p>A "Spotify Wrapped" inspired recap tool for GitHub profiles. Enter a GitHub username to aggregate activity data, compute statistics, and visualize them through an engaging, animated narrative.</p>
 </div>
 
 ---
 
-## Features
+## Overview
 
-- **Deep GitHub Analytics**: Aggregates data across both GitHub REST and GraphQL APIs to calculate:
-  - Total contributions over the last year
-  - Longest contribution streak (in days)
-  - Most active day of the week
-  - Top 5 programming languages by percentage
-  - Total stars across all owned repositories and the most starred repo
-  - Account age and total public repositories
-- **Smart Caching**: Utilizes MongoDB with a 1-week Time-To-Live (TTL) index to cache user stats. This guarantees lightning-fast load times for repeat visitors and prevents GitHub API rate-limiting.
-- **Top Contributors Leaderboard**: Real-time ranking on the homepage showcasing the top 10 most active GitHub profiles previously wrapped by the app.
-- **Shareable Assets**: Integrated with `html-to-image` allowing users to generate and download a shareable snapshot of their GitHub Wrapped to post on social media.
-- **Story-Style Animations**: Immersive user experience powered by GSAP, mimicking the engaging flow of modern "wrapped" style applications.
+GitHub Wrapped is an open-source web application designed to provide developers with a personalized, engaging summary of their GitHub activity. By leveraging both the GitHub REST and GraphQL APIs, the application extracts a rich dataset of contributions, languages, and repository metrics, presenting them in a modern, story-driven format powered by GSAP animations.
 
-## Tech Stack
+## Key Features
 
-- **Framework**: [Next.js 14+](https://nextjs.org/) (App Router, Server Components)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **Database**: [MongoDB](https://www.mongodb.com/) via [Mongoose](https://mongoosejs.com/)
-- **Animations**: [GSAP (GreenSock Animation Platform)](https://gsap.com/)
-- **Utilities**: 
-  - `html-to-image` for PNG generation
-  - `lucide-react` for iconography
+- **Comprehensive Analytics**: Aggregates and computes key developer metrics, including:
+  - Total contributions over the preceding year.
+  - Longest unbroken contribution streak.
+  - Most active day of the week.
+  - Primary programming languages by usage percentage.
+  - Total stars accumulated and highest-starred repository.
+  - Account tenure and repository count.
+- **Optimized Performance via Caching**: Implements MongoDB with a Time-To-Live (TTL) index to cache user statistics for one week. This strategy minimizes redundant API calls, mitigates rate-limiting risks, and ensures rapid load times for returning users.
+- **Global Leaderboard**: Features a real-time ranking system on the homepage, highlighting the most active GitHub profiles processed by the platform.
+- **Exportable Snapshots**: Integrates `html-to-image` functionality, enabling users to generate and download a static, shareable PNG snapshot of their customized wrap-up.
+- **Immersive Animations**: Utilizes GSAP (GreenSock Animation Platform) to orchestrate complex, story-style animation sequences that enhance user engagement.
 
-## Design Identity
+## Architecture & Technology Stack
 
-The visual identity of this project relies heavily on the **JetBrains Mono** typeface for all stats and numbers to evoke a code-native feel. The color palette focuses on diff-based accent colors (additions, deletions, modifications) combined with vibrant greens to match the iconic GitHub contribution graph.
+The application is built on a modern JavaScript ecosystem, prioritizing performance, type safety, and maintainability.
 
-## Setup & Local Development
+- **Frontend & Framework**: [Next.js 14+](https://nextjs.org/) (App Router paradigm, Server & Client Components)
+- **Language**: [TypeScript](https://www.typescriptlang.org/) for end-to-end type safety
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) for utility-first responsive design
+- **Database**: [MongoDB](https://www.mongodb.com/) utilizing [Mongoose](https://mongoosejs.com/) for schema validation and interaction
+- **Animation Engine**: [GSAP](https://gsap.com/) for high-performance timeline animations
+- **Supplementary Libraries**: 
+  - `html-to-image`: Client-side DOM to image rendering
+  - `lucide-react`: Consistent SVG iconography
 
-### 1. Prerequisites
+## Design Philosophy
 
-- [Node.js](https://nodejs.org/en/) (v18 or higher)
-- A [MongoDB](https://www.mongodb.com/) cluster (Atlas or local)
-- A [GitHub Personal Access Token (PAT)](https://github.com/settings/tokens) (Classic or Fine-grained) with public read access.
+The user interface is intentionally designed to resonate with developers. It utilizes the **JetBrains Mono** typeface for all numerical data and statistics to evoke a code-editor aesthetic. The color system is derived from standard Git diff indicators (additions, deletions, modifications) paired with vibrant greens inspired by the classic GitHub contribution graph.
 
-### 2. Clone and Install
+## Getting Started
+
+### Prerequisites
+
+Ensure the following dependencies are installed before proceeding:
+- [Node.js](https://nodejs.org/en/) (v18.x or later recommended)
+- A [MongoDB](https://www.mongodb.com/) database instance (local or Atlas cluster)
+- A [GitHub Personal Access Token (PAT)](https://github.com/settings/tokens) with public read permissions.
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/github-wrapped.git
+   cd github-wrapped
+   ```
+
+2. Install project dependencies:
+   ```bash
+   npm install
+   ```
+
+### Configuration
+
+Create a `.env.local` file in the project root directory and define the required environment variables:
 
 ```bash
-git clone https://github.com/yourusername/github-wrapped.git
-cd github-wrapped
-npm install
-```
-
-### 3. Environment Variables
-
-Create a `.env.local` file in the root directory and populate it with the following:
-
-```bash
-# Your MongoDB connection string (used for caching)
+# MongoDB connection URI utilized for the caching layer
 MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/github-wrapped?retryWrites=true&w=majority
 
-# Your GitHub Personal Access Token (Classic or Fine-grained)
-# Note: It only needs public read access.
-GITHUB_TOKEN=ghp_your_token_here
+# GitHub Personal Access Token (PAT) for API authentication
+# Requires 'public_repo' or general public read access
+GITHUB_TOKEN=ghp_your_personal_access_token
 ```
 
-### 4. Run the Development Server
+### Development Server
+
+Initialize the local development server:
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will be accessible at [http://localhost:3000](http://localhost:3000).
 
 ## Project Structure
 
 ```text
-├── app/                  # Next.js App Router pages and API routes
-│   ├── api/wrapped/      # Backend endpoint handling GitHub API & DB caching
-│   └── page.tsx          # Homepage with Top Contributors leaderboard
-├── components/           # Reusable UI components (TerminalInput, etc.)
-├── lib/                  # Core utilities (MongoDB connection, GitHub fetcher)
-├── models/               # Mongoose schema definitions (Wrapped.ts)
-└── public/               # Static assets
+├── app/                  # Next.js App Router implementation
+│   ├── api/wrapped/      # Serverless route handlers for GitHub API and database operations
+│   └── page.tsx          # Application entry point and leaderboard interface
+├── components/           # Modular React components (e.g., TerminalInput, LoadingSequence)
+├── lib/                  # Core utilities, database connection logic, and API fetchers
+├── models/               # Mongoose schemas representing database collections
+└── public/               # Static assets (images, fonts, etc.)
 ```
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request if you'd like to improve the animations, add new stats, or fix any bugs.
+We welcome contributions from the community. To contribute:
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/EnhancementName`).
+3. Commit your changes (`git commit -m 'feat: implement EnhancementName'`).
+4. Push to the branch (`git push origin feature/EnhancementName`).
+5. Open a Pull Request detailing your changes.
 
 ## License
 
-This project is open-source and available under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
