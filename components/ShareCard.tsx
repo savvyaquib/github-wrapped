@@ -289,9 +289,9 @@ export default function ShareCard({
               </div>
 
               <div
-                className={`mt-6 text-[9px] text-white/30 tracking-[0.3em] uppercase ${jetbrains.className}`}
+                className={`mt-6 text-[10px] text-white/50 tracking-wider ${jetbrains.className}`}
               >
-                github-wrapped.vercel.app
+                https://github-wrapped.vercel.app
               </div>
             </div>
           </div>
