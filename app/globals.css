@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
-@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&f[]=switzer@400,500,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Maven+Pro:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 @import "tailwindcss";
 
@@ -22,8 +21,8 @@
   --color-text-primary: var(--text-primary);
   --color-text-muted: var(--text-muted);
   
-  --font-display: 'General Sans', sans-serif;
-  --font-sans: 'Switzer', sans-serif;
+  --font-display: 'Playfair Display', serif;
+  --font-sans: 'Maven Pro', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 
