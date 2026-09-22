@@ -94,7 +94,7 @@ export default function LoadingSequence() {
   const progressBar = `[${'█'.repeat(filledLength)}${'░'.repeat(emptyLength)}] ${progress}%`;
 
   return (
-    <div className="w-full h-full min-h-screen flex flex-col justify-end p-6 md:p-12 bg-background font-mono text-sm sm:text-base relative overflow-hidden">
+    <div className="w-full h-full min-h-screen flex flex-col justify-end p-6 md:p-12 bg-background font-sans text-sm sm:text-base relative overflow-hidden">
       
       {/* Cool subtle background grid to add depth */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.02]" style={{

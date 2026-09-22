@@ -11,15 +11,15 @@ import React, { useRef, useState } from "react";
 import * as htmlToImage from "html-to-image";
 import { IWrapped } from "@/models/Wrapped";
 import { Download, Share2, Loader2 } from "lucide-react";
-import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Playfair_Display, Maven_Pro } from "next/font/google";
 
-const space = Space_Grotesk({
+const maven = Maven_Pro({
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
-const jetbrains = JetBrains_Mono({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
 
 export default function ShareCard({
@@ -131,7 +131,7 @@ export default function ShareCard({
         {/* The Premium Card to be exported */}
         <div
           ref={cardRef}
-          className={`${space.className} relative w-full rounded-[24px] overflow-hidden shadow-[0_0_60px_-15px_rgba(16,185,129,0.5)] p-[1px]`}
+          className={`${maven.className} relative w-full rounded-[24px] overflow-hidden shadow-[0_0_60px_-15px_rgba(16,185,129,0.5)] p-[1px]`}
         >
           {/* Animated Gradient Border */}
           <div className="absolute inset-0 bg-gradient-to-br from-green-400 via-emerald-700 to-purple-900 opacity-90" />
@@ -179,13 +179,13 @@ export default function ShareCard({
                   <path d="M9 18c-4.51 2-5-2-7-2"></path>
                 </svg>
                 <span
-                  className={`text-white/60 text-[10px] tracking-[0.2em] uppercase ${jetbrains.className}`}
+                  className={`text-white/60 text-[10px] tracking-[0.2em] uppercase ${playfair.className}`}
                 >
                   GITHUB WRAPPED '26
                 </span>
               </div>
               <div
-                className={`text-green-400 text-[10px] tracking-[0.2em] font-bold uppercase ${jetbrains.className} flex items-center space-x-2`}
+                className={`text-green-400 text-[10px] tracking-[0.2em] font-bold uppercase ${playfair.className} flex items-center space-x-2`}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
                 <span>VERIFIED</span>
@@ -223,7 +223,7 @@ export default function ShareCard({
                 </h1>
                 <div className="mt-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
                   <p
-                    className={`text-emerald-400 text-[10px] tracking-widest font-semibold ${jetbrains.className}`}
+                    className={`text-emerald-400 text-[10px] tracking-widest font-semibold ${playfair.className}`}
                   >
                     ELITE CONTRIBUTOR
                   </p>
@@ -239,7 +239,7 @@ export default function ShareCard({
               >
                 <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-green-400/50 to-transparent"></div>
                 <span
-                  className={`text-white/60 text-[11px] tracking-[0.2em] uppercase mb-2 ${jetbrains.className}`}
+                  className={`text-white/60 text-[11px] tracking-[0.2em] uppercase mb-2 ${playfair.className}`}
                 >
                   Total Commits
                 </span>
@@ -253,7 +253,7 @@ export default function ShareCard({
                 <StatCard
                   label="Longest Streak"
                   value={`${data.longestStreak} days`}
-                  jetbrains={jetbrains.className}
+                  accentFont={playfair.className}
                 />
                 <StatCard
                   label="Top Language"
@@ -264,32 +264,32 @@ export default function ShareCard({
                       : undefined
                   }
                   progress={data.topLanguages.length > 0 ? data.topLanguages[0].percentage : undefined}
-                  jetbrains={jetbrains.className}
+                  accentFont={playfair.className}
                 />
                 <StatCard
                   label="Most Active"
                   value={data.mostActiveWeekday}
-                  jetbrains={jetbrains.className}
+                  accentFont={playfair.className}
                 />
                 <StatCard
                   label="Stars Earned"
                   value={data.totalStars.toLocaleString()}
-                  jetbrains={jetbrains.className}
+                  accentFont={playfair.className}
                 />
                 <StatCard
                   label="Total Repos"
                   value={(data.totalRepos || 0).toLocaleString()}
-                  jetbrains={jetbrains.className}
+                  accentFont={playfair.className}
                 />
                 <StatCard
                   label="Account Age"
                   value={`${data.accountAgeInYears} year${data.accountAgeInYears === 1 ? '' : 's'}`}
-                  jetbrains={jetbrains.className}
+                  accentFont={playfair.className}
                 />
               </div>
 
               <div
-                className={`mt-6 text-[10px] text-white/50 tracking-wider ${jetbrains.className}`}
+                className={`mt-6 text-[10px] text-white/50 tracking-wider ${playfair.className}`}
               >
                 https://github-wrapped.vercel.app
               </div>
@@ -331,19 +331,19 @@ function StatCard({
   value,
   subValue,
   progress,
-  jetbrains,
+  accentFont,
 }: {
   label: string;
   value: string;
   subValue?: string;
   progress?: number;
-  jetbrains: string;
+  accentFont: string;
 }) {
   return (
     <div className="bg-white/[0.03] border border-white/5 hover:border-white/10 hover:bg-white/[0.05] transition-colors rounded-[16px] p-4 flex flex-col justify-between relative overflow-hidden group">
       <div className="absolute inset-0 bg-gradient-to-br from-green-500/0 to-green-500/0 group-hover:to-green-500/5 transition-colors"></div>
       <span
-        className={`text-white/40 text-[9px] tracking-widest uppercase mb-3 ${jetbrains}`}
+        className={`text-white/40 text-[9px] tracking-widest uppercase mb-3 ${accentFont}`}
       >
         {label}
       </span>
@@ -354,7 +354,7 @@ function StatCard({
           </span>
           {subValue && (
             <span
-              className={`text-emerald-400 text-xs font-semibold ${jetbrains}`}
+              className={`text-emerald-400 text-xs font-semibold ${accentFont}`}
             >
               {subValue}
             </span>

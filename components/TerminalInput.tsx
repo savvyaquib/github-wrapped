@@ -51,7 +51,7 @@ export default function TerminalInput() {
 
   return (
     <div 
-      className="w-full max-w-2xl mx-auto flex flex-col items-start font-mono text-lg sm:text-xl md:text-2xl text-text-primary"
+      className="w-full max-w-2xl mx-auto flex flex-col items-start font-sans text-lg sm:text-xl md:text-2xl text-text-primary"
       onClick={() => inputRef.current?.focus()}
     >
       <form onSubmit={handleSubmit} className="relative w-full flex items-center">

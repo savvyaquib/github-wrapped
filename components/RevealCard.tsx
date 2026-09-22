@@ -102,7 +102,7 @@ export default function RevealCard({
       `}
     >
       {/* Metadata Header */}
-      <div className="font-mono text-xs text-text-muted mb-8 flex items-center tracking-wider">
+      <div className="font-sans text-xs text-text-muted mb-8 flex items-center tracking-wider">
         <span className="opacity-70">commit</span>
         <span className="mx-2 text-text-primary">{commitHash}</span>
         <span className="opacity-70">&middot; just now</span>
@@ -110,7 +110,7 @@ export default function RevealCard({
 
       {/* Primary Stat Display */}
       <div className="flex flex-col mb-4">
-        <div className="font-mono text-5xl sm:text-6xl text-text-primary font-bold mb-2 tracking-tight">
+        <div className="font-display text-5xl sm:text-6xl text-text-primary font-bold mb-2 tracking-tight">
           {prefix && <span className="opacity-80 mr-1">{prefix}</span>}
           <span ref={numberRef}>0</span>
           {suffix && <span className="opacity-80 ml-1">{suffix}</span>}
