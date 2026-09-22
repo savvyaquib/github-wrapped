@@ -39,7 +39,7 @@ export default async function Home() {
         
         {/* Header Section */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight bg-gradient-to-br from-green-300 via-emerald-500 to-green-700 text-transparent bg-clip-text drop-shadow-sm">
+          <h1 className="font-display text-5xl md:text-7xl font-extrabold mb-6 tracking-tight bg-gradient-to-br from-green-300 via-emerald-500 to-green-700 text-transparent bg-clip-text drop-shadow-sm">
             GitHub Wrapped
           </h1>
           <p className="text-text-secondary text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
@@ -60,7 +60,7 @@ export default async function Home() {
           <div className="w-full flex flex-col items-center">
             <div className="flex items-center gap-4 mb-10">
               <div className="h-[1px] w-12 sm:w-24 bg-gradient-to-r from-transparent to-green-500/50"></div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-wide">Top Contributors</h2>
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-text-primary tracking-wide">Top Contributors</h2>
               <div className="h-[1px] w-12 sm:w-24 bg-gradient-to-l from-transparent to-green-500/50"></div>
             </div>
 
