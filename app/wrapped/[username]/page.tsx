@@ -34,8 +34,12 @@ export default function WrappedSequencePage() {
         setTimeout(() => {
           setPhase('share');
         }, 4000);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('An unknown error occurred');
+        }
       }
     }
 

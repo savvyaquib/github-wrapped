@@ -21,7 +21,7 @@ function extractUsername(input: string): string {
         }
       }
     }
-  } catch (e) {
+  } catch {
     // URL parsing failed, fall back to treating it as a raw username
   }
   
@@ -72,13 +72,13 @@ export async function GET(
     // Return the fresh data
     return NextResponse.json({ data: freshData, source: 'github' });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API Route Error:', error);
     
     // Return a generic error to the client, but you can refine this 
     // based on if it's a 404 (user not found) or a 403 (rate limit)
     return NextResponse.json(
-      { error: error.message || 'An error occurred while fetching data.' }, 
+      { error: error instanceof Error ? error.message : 'An error occurred while fetching data.' }, 
       { status: 500 }
     );
   }

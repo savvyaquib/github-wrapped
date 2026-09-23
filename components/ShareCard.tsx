@@ -181,7 +181,7 @@ export default function ShareCard({
                 <span
                   className={`text-white/60 text-[10px] tracking-[0.2em] uppercase ${playfair.className}`}
                 >
-                  GITHUB WRAPPED '26
+                  GITHUB WRAPPED &apos;26
                 </span>
               </div>
               <div
@@ -208,6 +208,7 @@ export default function ShareCard({
                 }}
               >
                 <div className="w-20 h-20 rounded-full p-[2px] bg-gradient-to-tr from-green-400 via-emerald-500 to-purple-600 mb-3 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={
                       data.avatarUrl ||

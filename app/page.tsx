@@ -1,6 +1,6 @@
 import TerminalInput from '@/components/TerminalInput';
 import connectToDatabase from '@/lib/mongodb';
-import Wrapped from '@/models/Wrapped';
+import Wrapped, { IWrapped } from '@/models/Wrapped';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -65,7 +65,7 @@ export default async function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-              {topAccounts.map((account: any, index: number) => (
+              {topAccounts.map((account: IWrapped, index: number) => (
                 <Link 
                   key={account.username} 
                   href={`/wrapped/${account.username}`} 
@@ -105,7 +105,7 @@ export default async function Home() {
                     </div>
 
                     <div className="flex gap-2 flex-wrap mt-auto">
-                      {account.topLanguages.slice(0, 3).map((lang: any) => (
+                      {account.topLanguages.slice(0, 3).map((lang: { name: string }) => (
                         <span 
                           key={lang.name} 
                           className="px-2.5 py-1 text-xs font-medium rounded-md bg-white/5 text-text-secondary border border-white/5 group-hover:border-white/10 group-hover:bg-white/10 transition-colors"

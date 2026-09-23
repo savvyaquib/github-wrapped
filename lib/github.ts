@@ -19,7 +19,7 @@ const headers = {
 };
 
 // Helper for GraphQL API
-async function fetchGraphQL(query: string, variables: any) {
+async function fetchGraphQL(query: string, variables: Record<string, unknown>) {
   if (!GITHUB_TOKEN) {
     throw new Error('GITHUB_TOKEN is not defined in environment variables.');
   }
@@ -63,7 +63,7 @@ async function fetchREST(endpoint: string) {
  * @param weeks The weeks array from the GraphQL contribution calendar
  * @returns The longest streak in days
  */
-function calculateLongestStreak(weeks: any[]): number {
+function calculateLongestStreak(weeks: { contributionDays: { contributionCount: number }[] }[]): number {
   let currentStreak = 0;
   let longestStreak = 0;
 
@@ -89,7 +89,7 @@ function calculateLongestStreak(weeks: any[]): number {
  * @param weeks The weeks array from the GraphQL contribution calendar
  * @returns The name of the most active weekday
  */
-function calculateMostActiveWeekday(weeks: any[]): string {
+function calculateMostActiveWeekday(weeks: { contributionDays: { contributionCount: number, weekday: number }[] }[]): string {
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const dayCounts = [0, 0, 0, 0, 0, 0, 0];
 
