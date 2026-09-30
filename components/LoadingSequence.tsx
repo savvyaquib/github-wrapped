@@ -7,7 +7,7 @@
  * while the backend fetches and computes the Wrapped stats.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
 
 const LOG_LINES = [
   'Initializing secure connection to GitHub...',
@@ -26,8 +26,9 @@ const LOG_LINES = [
 
 // Characters used for the scramble effect
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=';
+const BAR_LENGTH = 40;
 
-const ScrambleText = ({ text }: { text: string }) => {
+const ScrambleText = memo(function ScrambleText({ text }: { text: string }) {
   const [displayText, setDisplayText] = useState('');
   
   useEffect(() => {
@@ -56,7 +57,7 @@ const ScrambleText = ({ text }: { text: string }) => {
   }, [text]);
 
   return <span>{displayText}</span>;
-};
+});
 
 export default function LoadingSequence() {
   const [visibleLines, setVisibleLines] = useState<string[]>([]);
@@ -64,6 +65,8 @@ export default function LoadingSequence() {
 
   useEffect(() => {
     let currentIndex = 0;
+    // Track ALL timeout IDs so we can clean up every spawned timer on unmount
+    const timeoutIds: ReturnType<typeof setTimeout>[] = [];
     
     const showNextLine = () => {
       if (currentIndex < LOG_LINES.length) {
@@ -78,20 +81,30 @@ export default function LoadingSequence() {
         if (currentIndex < LOG_LINES.length) {
           // Delay between lines
           const nextDelay = Math.random() * 300 + 200; // 200-500ms
-          setTimeout(showNextLine, nextDelay);
+          const id = setTimeout(showNextLine, nextDelay);
+          timeoutIds.push(id);
         }
       }
     };
 
-    const timeout = setTimeout(showNextLine, 300);
-    return () => clearTimeout(timeout);
+    const initialId = setTimeout(showNextLine, 300);
+    timeoutIds.push(initialId);
+
+    return () => {
+      for (const id of timeoutIds) {
+        clearTimeout(id);
+      }
+    };
   }, []);
 
-  // Generate ASCII progress bar
-  const barLength = 40;
-  const filledLength = Math.floor((progress / 100) * barLength);
-  const emptyLength = barLength - filledLength;
-  const progressBar = `[${'█'.repeat(filledLength)}${'░'.repeat(emptyLength)}] ${progress}%`;
+  // Memoize the progress bar string to avoid recalculating on every render
+  const progressBar = useMemo(() => {
+    const filledLength = Math.floor((progress / 100) * BAR_LENGTH);
+    const emptyLength = BAR_LENGTH - filledLength;
+    return `[${'█'.repeat(filledLength)}${'░'.repeat(emptyLength)}] ${progress}%`;
+  }, [progress]);
+
+  const isComplete = visibleLines.length === LOG_LINES.length;
 
   return (
     <div className="w-full h-full min-h-screen flex flex-col justify-end p-6 md:p-12 bg-background font-sans text-sm sm:text-base relative overflow-hidden">
@@ -116,7 +129,7 @@ export default function LoadingSequence() {
         ))}
         
         {/* Blinking cursor and Progress bar */}
-        {visibleLines.length < LOG_LINES.length && (
+        {!isComplete && (
           <div className="flex flex-col mt-2">
             <div className="flex">
                <span className="text-green-500 mr-3 shrink-0">github@wrapped:~$</span>
@@ -129,9 +142,9 @@ export default function LoadingSequence() {
           </div>
         )}
 
-        {visibleLines.length === LOG_LINES.length && (
+        {isComplete && (
           <div className="mt-8 text-green-400 font-bold tracking-widest text-xs sm:text-sm shadow-[0_0_15px_rgba(16,185,129,0.5)]">
-            {`[${'█'.repeat(barLength)}] 100% - ACCESS GRANTED`}
+            {`[${'█'.repeat(BAR_LENGTH)}] 100% - ACCESS GRANTED`}
           </div>
         )}
       </div>

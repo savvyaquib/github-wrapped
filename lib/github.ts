@@ -11,59 +11,143 @@
 
 import { IWrapped } from '../models/Wrapped';
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+// ─── Types ──────────────────────────────────────────────────────────────────────
 
-const headers = {
-  Authorization: `Bearer ${GITHUB_TOKEN}`,
-  'Content-Type': 'application/json',
-};
+interface GitHubUserProfile {
+  login: string;
+  public_repos: number;
+  avatar_url: string;
+  created_at: string;
+}
 
-// Helper for GraphQL API
-async function fetchGraphQL(query: string, variables: Record<string, unknown>) {
-  if (!GITHUB_TOKEN) {
+interface GitHubRepo {
+  fork: boolean;
+  stargazers_count: number;
+  name: string;
+  language: string | null;
+}
+
+interface ContributionDay {
+  contributionCount: number;
+  weekday: number;
+}
+
+interface ContributionWeek {
+  contributionDays: ContributionDay[];
+}
+
+interface ContributionCalendar {
+  totalContributions: number;
+  weeks: ContributionWeek[];
+}
+
+interface GraphQLContributionResponse {
+  data: {
+    user: {
+      contributionsCollection: {
+        contributionCalendar: ContributionCalendar;
+      };
+    } | null;
+  };
+  errors?: { message: string }[];
+}
+
+// ─── Custom Errors ──────────────────────────────────────────────────────────────
+
+export class GitHubUserNotFoundError extends Error {
+  constructor(username: string) {
+    super(`GitHub user "${username}" not found.`);
+    this.name = 'GitHubUserNotFoundError';
+  }
+}
+
+export class GitHubRateLimitError extends Error {
+  constructor() {
+    super('GitHub API rate limit exceeded. Please try again later.');
+    this.name = 'GitHubRateLimitError';
+  }
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────────
+
+/**
+ * Builds authorization headers lazily to avoid reading env vars at module-load 
+ * time, which can fail in edge runtimes or test environments.
+ */
+function getHeaders(): Record<string, string> {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) {
     throw new Error('GITHUB_TOKEN is not defined in environment variables.');
   }
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+}
 
+/** Helper for GraphQL API with typed response. */
+async function fetchGraphQL<T>(query: string, variables: Record<string, unknown>): Promise<T> {
   const res = await fetch('https://api.github.com/graphql', {
     method: 'POST',
-    headers,
+    headers: getHeaders(),
     body: JSON.stringify({ query, variables }),
     // Ensure we get fresh data from GitHub, not a cached Next.js response
     cache: 'no-store', 
   });
 
   if (!res.ok) {
+    if (res.status === 403) throw new GitHubRateLimitError();
     throw new Error(`GraphQL Error: ${res.status} ${res.statusText}`);
   }
 
-  return res.json();
+  return res.json() as Promise<T>;
 }
 
-// Helper for REST API
-async function fetchREST(endpoint: string) {
-  if (!GITHUB_TOKEN) {
-    throw new Error('GITHUB_TOKEN is not defined in environment variables.');
-  }
-
+/** Helper for REST API with typed response. */
+async function fetchREST<T>(endpoint: string): Promise<T> {
   const res = await fetch(`https://api.github.com${endpoint}`, {
-    headers,
+    headers: getHeaders(),
     cache: 'no-store',
   });
 
   if (!res.ok) {
+    if (res.status === 404) throw new GitHubUserNotFoundError(endpoint);
+    if (res.status === 403 || res.status === 429) throw new GitHubRateLimitError();
     throw new Error(`REST Error: ${res.status} ${res.statusText}`);
   }
 
-  return res.json();
+  return res.json() as Promise<T>;
 }
 
 /**
- * Calculates the longest streak of consecutive days with contributions.
- * 
- * @param weeks The weeks array from the GraphQL contribution calendar
- * @returns The longest streak in days
+ * Fetches ALL repos for a user by paginating through the REST API.
+ * GitHub caps `per_page` at 100, so we loop until a page returns fewer results.
  */
-function calculateLongestStreak(weeks: { contributionDays: { contributionCount: number }[] }[]): number {
+async function fetchAllRepos(username: string): Promise<GitHubRepo[]> {
+  const allRepos: GitHubRepo[] = [];
+  let page = 1;
+  const perPage = 100;
+
+  while (true) {
+    const batch = await fetchREST<GitHubRepo[]>(
+      `/users/${username}/repos?per_page=${perPage}&type=owner&page=${page}`
+    );
+    allRepos.push(...batch);
+
+    // If we got fewer than a full page, we've exhausted all repos
+    if (batch.length < perPage) break;
+    page++;
+  }
+
+  return allRepos;
+}
+
+// ─── Computation ────────────────────────────────────────────────────────────────
+
+/**
+ * Calculates the longest streak of consecutive days with contributions.
+ */
+function calculateLongestStreak(weeks: ContributionWeek[]): number {
   let currentStreak = 0;
   let longestStreak = 0;
 
@@ -71,9 +155,7 @@ function calculateLongestStreak(weeks: { contributionDays: { contributionCount: 
     for (const day of week.contributionDays) {
       if (day.contributionCount > 0) {
         currentStreak++;
-        if (currentStreak > longestStreak) {
-          longestStreak = currentStreak;
-        }
+        longestStreak = Math.max(longestStreak, currentStreak);
       } else {
         currentStreak = 0;
       }
@@ -83,84 +165,107 @@ function calculateLongestStreak(weeks: { contributionDays: { contributionCount: 
   return longestStreak;
 }
 
+const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
+
 /**
  * Determines the weekday with the most contributions.
- * 
- * @param weeks The weeks array from the GraphQL contribution calendar
- * @returns The name of the most active weekday
  */
-function calculateMostActiveWeekday(weeks: { contributionDays: { contributionCount: number, weekday: number }[] }[]): string {
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+function calculateMostActiveWeekday(weeks: ContributionWeek[]): string {
+  const dayCounts = new Uint32Array(7);
 
   for (const week of weeks) {
     for (const day of week.contributionDays) {
-      // weekday is an integer from 0 (Sunday) to 6 (Saturday)
       dayCounts[day.weekday] += day.contributionCount;
     }
   }
 
-  const maxIndex = dayCounts.indexOf(Math.max(...dayCounts));
-  return days[maxIndex];
+  let maxIndex = 0;
+  for (let i = 1; i < 7; i++) {
+    if (dayCounts[i] > dayCounts[maxIndex]) maxIndex = i;
+  }
+
+  return WEEKDAY_NAMES[maxIndex];
 }
+
+/**
+ * Calculates account age in whole years using proper calendar math.
+ */
+function calculateAccountAge(createdAt: string): number {
+  const created = new Date(createdAt);
+  const now = new Date();
+
+  let years = now.getFullYear() - created.getFullYear();
+
+  // Adjust if we haven't reached the anniversary month/day yet this year
+  const monthDiff = now.getMonth() - created.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < created.getDate())) {
+    years--;
+  }
+
+  return Math.max(0, years);
+}
+
+// ─── Main Export ─────────────────────────────────────────────────────────────────
+
+const CONTRIBUTION_QUERY = `
+  query($userName:String!) {
+    user(login: $userName){
+      contributionsCollection {
+        contributionCalendar {
+          totalContributions
+          weeks {
+            contributionDays {
+              contributionCount
+              weekday
+            }
+          }
+        }
+      }
+    }
+  }
+`;
 
 /**
  * Fetches all necessary data from GitHub and computes the Wrapped stats.
  * 
  * @param username The GitHub username to fetch data for
  * @returns Aggregated stats matching the IWrapped interface
+ * @throws {GitHubUserNotFoundError} When the user doesn't exist
+ * @throws {GitHubRateLimitError} When rate limited
  */
 export async function getGitHubWrappedData(username: string): Promise<Omit<IWrapped, 'createdAt'>> {
   
-  // 1. Fetch User Profile & Repos (REST) in parallel with Contributions (GraphQL)
-  const query = `
-    query($userName:String!) {
-      user(login: $userName){
-        contributionsCollection {
-          contributionCalendar {
-            totalContributions
-            weeks {
-              contributionDays {
-                contributionCount
-                weekday
-              }
-            }
-          }
-        }
-      }
-    }
-  `;
-
+  // Fetch User Profile, Repos (paginated), and Contributions in parallel
   const [userProfile, repos, graphqlData] = await Promise.all([
-    fetchREST(`/users/${username}`),
-    fetchREST(`/users/${username}/repos?per_page=100&type=owner`),
-    fetchGraphQL(query, { userName: username }),
+    fetchREST<GitHubUserProfile>(`/users/${username}`),
+    fetchAllRepos(username),
+    fetchGraphQL<GraphQLContributionResponse>(CONTRIBUTION_QUERY, { userName: username }),
   ]);
 
-  if (graphqlData.errors) {
+  if (graphqlData.errors?.length) {
     throw new Error(`GraphQL query returned errors: ${JSON.stringify(graphqlData.errors)}`);
   }
 
-  const calendar = graphqlData.data.user.contributionsCollection.contributionCalendar;
+  if (!graphqlData.data.user) {
+    throw new GitHubUserNotFoundError(username);
+  }
 
-  // 2. Aggregate Data
+  const calendar = graphqlData.data.user.contributionsCollection.contributionCalendar;
 
   // A. Contributions & Streak
   const totalContributions = calendar.totalContributions;
   const longestStreak = calculateLongestStreak(calendar.weeks);
   const mostActiveWeekday = calculateMostActiveWeekday(calendar.weeks);
 
-  // B. Repository Stats (Stars & Languages)
+  // B. Repository Stats (Stars & Languages) — only original (non-fork) repos
   let totalStars = 0;
-  let mostStarredRepo = null;
+  let mostStarredRepo: string | null = null;
   let maxStars = -1;
   
   const languageCounts: Record<string, number> = {};
   let totalReposWithLanguage = 0;
 
   for (const repo of repos) {
-    // Only count repos the user actually owns and aren't forks, 
-    // to give a true reflection of their original work.
     if (!repo.fork) {
       totalStars += repo.stargazers_count;
       
@@ -185,12 +290,8 @@ export async function getGitHubWrappedData(username: string): Promise<Omit<IWrap
       percentage: totalReposWithLanguage > 0 ? Math.round((count / totalReposWithLanguage) * 100) : 0,
     }));
 
-  // C. Account Age
-  const createdDate = new Date(userProfile.created_at);
-  const currentDate = new Date();
-  const accountAgeInYears = Math.abs(
-    new Date(currentDate.getTime() - createdDate.getTime()).getUTCFullYear() - 1970
-  );
+  // C. Account Age (proper calendar year diff)
+  const accountAgeInYears = calculateAccountAge(userProfile.created_at);
 
   return {
     username: userProfile.login,
