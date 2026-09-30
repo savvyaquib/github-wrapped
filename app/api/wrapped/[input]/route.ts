@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import WrappedModel from '@/models/Wrapped';
-import { getGitHubWrappedData } from '@/lib/github';
+import { getGitHubWrappedData, GitHubUserNotFoundError, GitHubRateLimitError } from '@/lib/github';
 
 /**
  * Extracts a GitHub username from either a raw username or a profile URL.
@@ -45,29 +45,33 @@ export async function GET(
 
     const username = extractUsername(decodeURIComponent(input));
 
+    // Normalize to lowercase — matches the storage convention in the Wrapped model
+    const normalizedUsername = username.toLowerCase();
+
     // Connect to MongoDB using our cached connection helper
     await connectToDatabase();
 
-    // 1. Check the cache
-    // We do a case-insensitive regex search because GitHub usernames are case-insensitive
-    const cachedData = await WrappedModel.findOne({ 
-      username: new RegExp(`^${username}$`, 'i') 
-    });
+    // 1. Check the cache using a simple equality match on the normalized username.
+    //    No regex needed — usernames are lowercased on write via a Mongoose pre-save hook.
+    const cachedData = await WrappedModel.findOne({ username: normalizedUsername }).lean();
 
     if (cachedData && cachedData.avatarUrl) {
       // Cache HIT!
       return NextResponse.json({ data: cachedData, source: 'cache' });
-    } else if (cachedData && !cachedData.avatarUrl) {
-      // Delete incomplete cache to fetch fresh data with avatarUrl
-      await WrappedModel.deleteOne({ _id: cachedData._id });
     }
 
-    // 2. Cache MISS - Fetch from GitHub
+    // 2. Cache MISS (or incomplete cache) — Fetch from GitHub
     const freshData = await getGitHubWrappedData(username);
 
-    // 3. Save to Cache
-    const newWrapped = new WrappedModel(freshData);
-    await newWrapped.save();
+    // 3. Atomically upsert into cache.
+    //    `findOneAndUpdate` with `upsert: true` solves the race condition where
+    //    two concurrent requests for the same new user would both try to insert,
+    //    causing a duplicate-key error with the old `new Model().save()` approach.
+    await WrappedModel.findOneAndUpdate(
+      { username: normalizedUsername },
+      { ...freshData, username: normalizedUsername },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
     // Return the fresh data
     return NextResponse.json({ data: freshData, source: 'github' });
@@ -75,8 +79,15 @@ export async function GET(
   } catch (error: unknown) {
     console.error('API Route Error:', error);
     
-    // Return a generic error to the client, but you can refine this 
-    // based on if it's a 404 (user not found) or a 403 (rate limit)
+    // Return granular HTTP status codes based on error type
+    if (error instanceof GitHubUserNotFoundError) {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
+
+    if (error instanceof GitHubRateLimitError) {
+      return NextResponse.json({ error: error.message }, { status: 429 });
+    }
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'An error occurred while fetching data.' }, 
       { status: 500 }

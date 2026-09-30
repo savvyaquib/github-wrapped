@@ -11,7 +11,9 @@ export default async function Home() {
   await connectToDatabase();
   
   // Fetch top 10 accounts by totalContributions
+  // Project only the fields rendered on the leaderboard cards
   const topAccounts = await Wrapped.find()
+    .select('username totalContributions topLanguages avatarUrl')
     .sort({ totalContributions: -1 })
     .limit(10)
     .lean();
