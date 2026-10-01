@@ -23,14 +23,6 @@ declare global {
   var mongoose: MongooseCache | undefined;
 }
 
-const MONGODB_URI = process.env.MONGODB_URI!;
-
-if (!MONGODB_URI) {
-  throw new Error(
-    'Please define the MONGODB_URI environment variable inside .env.local'
-  );
-}
-
 // Fallback to an empty cache if it doesn't exist on `global` yet
 let cached = global.mongoose;
 
@@ -44,14 +36,18 @@ async function connectToDatabase(): Promise<typeof mongoose> {
     return cached.conn;
   }
 
+  // Validate env var at call time — no `!` non-null assertion needed
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error(
+      'Please define the MONGODB_URI environment variable inside .env.local'
+    );
+  }
+
   // If a connection promise is not already in flight, create one
   if (!cached?.promise) {
-    const opts = {
+    cached!.promise = mongoose.connect(uri, {
       bufferCommands: false,
-    };
-
-    cached!.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
     });
   }
 

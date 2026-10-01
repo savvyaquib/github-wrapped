@@ -6,6 +6,9 @@ import mongoose from 'mongoose';
  * We cache this data so we don't bombard the GitHub API on every page reload
  * or share. A 1-week TTL (Time To Live) is used so the data remains fresh
  * but doesn't require constant re-fetching.
+ * 
+ * Usernames are normalized to lowercase before storage so that lookups
+ * can use a simple equality match instead of case-insensitive regex.
  */
 
 export interface IWrapped {
@@ -44,6 +47,14 @@ const WrappedSchema = new mongoose.Schema<IWrapped>(
     timestamps: true, // Automatically manages createdAt and updatedAt
   }
 );
+
+// Normalize username to lowercase before any save/update operation.
+// This ensures the unique index works without needing case-insensitive collation.
+WrappedSchema.pre('save', function () {
+  if (this.isModified('username')) {
+    this.username = this.username.toLowerCase();
+  }
+});
 
 // This creates a TTL index. MongoDB will automatically delete documents 
 // 1 week (604800 seconds) after their `createdAt` date.
