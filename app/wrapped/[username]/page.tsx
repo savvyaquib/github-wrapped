@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { IWrapped } from '@/models/Wrapped';
 import LoadingSequence from '@/components/LoadingSequence';
@@ -15,26 +15,46 @@ export default function WrappedSequencePage() {
   const [error, setError] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>('loading');
 
+  // Extract as a stable string to avoid re-running the effect 
+  // when useParams() returns a new object reference each render
+  const username = params.username as string;
+
+  // Refs to track timers and abort controllers for cleanup
+  const phaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   useEffect(() => {
+    // Abort any in-flight request from a previous render
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     async function fetchData() {
       try {
-        const usernameInput = params.username as string;
-        if (!usernameInput) return;
+        if (!username) return;
 
-        const res = await fetch(`/api/wrapped/${encodeURIComponent(usernameInput)}`);
+        const res = await fetch(`/api/wrapped/${encodeURIComponent(username)}`, {
+          signal: controller.signal,
+        });
         const json = await res.json();
 
         if (!res.ok) {
           throw new Error(json.error || 'Failed to fetch wrapped data');
         }
 
+        // Don't update state if this effect was cleaned up (component unmounted / username changed)
+        if (controller.signal.aborted) return;
+
         setData(json.data);
         
         // Wait a minimum of 4 seconds to let the loading animation play out
-        setTimeout(() => {
+        phaseTimerRef.current = setTimeout(() => {
           setPhase('share');
         }, 4000);
       } catch (err: unknown) {
+        // Silently ignore abort errors — they're expected during cleanup
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+
         if (err instanceof Error) {
           setError(err.message);
         } else {
@@ -44,7 +64,18 @@ export default function WrappedSequencePage() {
     }
 
     fetchData();
-  }, [params.username]);
+
+    // Cleanup: abort in-flight fetch and clear any pending phase timer
+    return () => {
+      controller.abort();
+      if (phaseTimerRef.current) {
+        clearTimeout(phaseTimerRef.current);
+        phaseTimerRef.current = null;
+      }
+    };
+  }, [username]);
+
+  const handleGoHome = useCallback(() => router.push('/'), [router]);
 
   if (error) {
     return (
@@ -53,7 +84,7 @@ export default function WrappedSequencePage() {
           Error: {error}
         </div>
         <button 
-          onClick={() => router.push('/')}
+          onClick={handleGoHome}
           className="group relative inline-flex items-center justify-center p-[1px] font-sans text-sm font-medium tracking-wide text-white rounded-2xl transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(224,85,91,0.2)] mx-auto"
         >
           <span className="absolute inset-0 rounded-2xl bg-white/10 group-hover:bg-gradient-to-r group-hover:from-accent-delete group-hover:to-orange-500 transition-all duration-500"></span>
@@ -82,7 +113,7 @@ export default function WrappedSequencePage() {
           
           <div className="mt-12 text-center">
             <button 
-              onClick={() => router.push('/')}
+              onClick={handleGoHome}
               className="group relative inline-flex items-center justify-center p-[1px] font-sans text-sm font-medium tracking-wide text-white rounded-2xl transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(16,185,129,0.2)] mx-auto"
             >
               <span className="absolute inset-0 rounded-2xl bg-white/10 group-hover:bg-gradient-to-r group-hover:from-green-500 group-hover:via-emerald-500 group-hover:to-purple-600 transition-all duration-500"></span>

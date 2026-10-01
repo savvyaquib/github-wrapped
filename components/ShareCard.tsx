@@ -7,7 +7,7 @@
  * Provides actions to download the card as a PNG or share via Web Share API.
  */
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useCallback, memo } from "react";
 import * as htmlToImage from "html-to-image";
 import { IWrapped } from "@/models/Wrapped";
 import { Download, Share2, Loader2 } from "lucide-react";
@@ -32,8 +32,8 @@ export default function ShareCard({
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current || isExporting) return;
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -52,21 +52,22 @@ export default function ShareCard({
       y: (y / rect.height) * 100,
       opacity: 0.2,
     });
-  };
+  }, []);
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     setRotate({ x: 0, y: 0 });
-    setGlare({ ...glare, opacity: 0 });
-  };
+    // Use functional updater to avoid stale closure over `glare`
+    setGlare((prev) => ({ ...prev, opacity: 0 }));
+  }, []);
 
-  const handleDownload = async () => {
+  const handleDownload = useCallback(async () => {
     if (!cardRef.current) return;
     try {
       setIsExporting(true);
 
       // Reset tilt before snapshot
       setRotate({ x: 0, y: 0 });
-      setGlare({ ...glare, opacity: 0 });
+      setGlare((prev) => ({ ...prev, opacity: 0 }));
 
       // Give React a moment to apply the flat state
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -91,9 +92,9 @@ export default function ShareCard({
     } finally {
       setIsExporting(false);
     }
-  };
+  }, [data.username]);
 
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
     if (navigator.share) {
       try {
         await navigator.share({
@@ -107,7 +108,7 @@ export default function ShareCard({
     } else {
       handleDownload();
     }
-  };
+  }, [data.username, data.totalContributions, handleDownload]);
 
   return (
     <div
@@ -326,8 +327,9 @@ export default function ShareCard({
   );
 }
 
-// Helper component for uniform rows
-function StatCard({
+// Memoized helper component — prevents re-rendering all 6 stat cards 
+// on every mouse move event (which only changes `rotate` and `glare`)
+const StatCard = memo(function StatCard({
   label,
   value,
   subValue,
@@ -372,4 +374,4 @@ function StatCard({
       </div>
     </div>
   );
-}
+});
